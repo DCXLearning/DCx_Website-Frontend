@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import AboutTeamSection from "@/components/About";
 import StrategicPartners from "@/components/StrategicPartners";
 import LogoSlider from "@/components/LogoSlider";
+import RegionalMap from "@/components/RegionalMap";
 
 const Index = () => {
   return (
@@ -22,6 +23,7 @@ const Index = () => {
         <AboutTeamSection />
         <Vision />
         {/* <RegionalPresence /> */}
+        <RegionalMap />
         <StrategicPartners />
         <LogoSlider />
         <Academy />
