@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@100..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,18 +19,15 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 30% 12%;
 
-    /* Deep professional blue - trust & technology */
     --primary: 217 91% 35%;
     --primary-foreground: 0 0% 100%;
     
-    /* Bright blue - innovation & clarity */
     --secondary: 205 100% 50%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 15% 95%;
     --muted-foreground: 220 15% 45%;
 
-    /* Light blue - engagement & interaction */
     --accent: 210 100% 60%;
     --accent-foreground: 0 0% 100%;
 
@@ -41,17 +40,14 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Gradient definitions */
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 35%) 0%, hsl(217 91% 50%) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(205 100% 50%) 0%, hsl(205 100% 65%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(210 100% 60%) 0%, hsl(210 100% 75%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(217 91% 35%) 0%, hsl(205 100% 50%) 50%, hsl(210 100% 60%) 100%);
     
-    /* Shadows with primary color */
     --shadow-elegant: 0 20px 40px -15px hsl(217 91% 35% / 0.15);
     --shadow-glow: 0 0 50px hsl(205 100% 50% / 0.25);
     
-    /* Animations */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -92,14 +88,21 @@ All colors MUST be HSL.
     --shadow-elegant: 0 20px 40px -15px hsl(0 0% 0% / 0.4);
     --shadow-glow: 0 0 50px hsl(205 100% 50% / 0.35);
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground;
+    font-family: "Kantumruy Pro", sans-serif;
   }
+}
+
+.leaflet-container {
+  z-index: 0;
+}
+
+.font-khmer {
+  font-family: "Kantumruy Pro", sans-serif !important;
 }

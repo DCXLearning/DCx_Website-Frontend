@@ -1,16 +1,59 @@
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { MapPin, Users, TrendingUp, Calendar } from "lucide-react";
-import { useState } from "react";
+import type { AppLanguage } from "@/components/Header";
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || "http://31.97.188.135:8000"
+).replace(/\/+$/, "");
+
+const API_TOKEN = import.meta.env.VITE_API_TOKEN || "";
 
 const categories = ["All", "Data Analytics", "Digital Systems", "Project Consulting", "Research"] as const;
 type Category = typeof categories[number];
+
+type ProjectsProps = {
+  language: AppLanguage;
+};
+
+type HeaderTopic = {
+  id: number;
+  title: string;
+  details: string;
+};
+
+type HeaderResponse = {
+  route: string;
+  results: {
+    topics: HeaderTopic[];
+  };
+};
+
+type SectionHeading = {
+  title: string;
+  description: string;
+};
+
+const fallbackHeading: Record<"en" | "km", SectionHeading> = {
+  en: {
+    title: "Projects & Case Studies",
+    description:
+      "Delivering measurable impact through data-driven solutions across the Mekong region and Southeast Asia — in partnership with leading development organizations",
+  },
+  km: {
+    title: "គម្រោង និងករណីសិក្សា",
+    description:
+      "បង្កើតផលប៉ះពាល់ដែលអាចវាស់វែងបាន តាមរយៈដំណោះស្រាយផ្អែកលើទិន្នន័យទូទាំងតំបន់មេគង្គ និងអាស៊ីអាគ្នេយ៍ ដោយសហការជាមួយអង្គការអភិវឌ្ឍន៍ឈានមុខ",
+  },
+};
 
 const projects = [
   {
     title: "Mekong Fisheries Data Platform",
     location: "Cambodia, Laos, Vietnam, Philippines",
     year: "2023-2024",
-    description: "Developed a comprehensive fisheries monitoring and data management system for the Mekong River Commission, enabling real-time catch data collection and analysis across four countries.",
+    description:
+      "Developed a comprehensive fisheries monitoring and data management system for the Mekong River Commission, enabling real-time catch data collection and analysis across four countries.",
     metrics: [
       { label: "Communities Reached", value: "2,500+" },
       { label: "Data Points Collected", value: "1.2M" },
@@ -23,7 +66,8 @@ const projects = [
     title: "Digital Agriculture Extension System",
     location: "Myanmar, Indonesia, Malaysia",
     year: "2022-2024",
-    description: "Designed and deployed a mobile-first agricultural extension platform connecting smallholder farmers with real-time market prices, weather data, and expert advisory services.",
+    description:
+      "Designed and deployed a mobile-first agricultural extension platform connecting smallholder farmers with real-time market prices, weather data, and expert advisory services.",
     metrics: [
       { label: "Farmers Registered", value: "45,000" },
       { label: "Income Increase", value: "32%" },
@@ -36,7 +80,8 @@ const projects = [
     title: "Regional Health M&E Framework",
     location: "Vietnam, Cambodia, Philippines",
     year: "2023-2025",
-    description: "Built an integrated monitoring and evaluation system for maternal and child health programs, enabling cross-border health data sharing and coordinated response mechanisms.",
+    description:
+      "Built an integrated monitoring and evaluation system for maternal and child health programs, enabling cross-border health data sharing and coordinated response mechanisms.",
     metrics: [
       { label: "Health Centers", value: "340" },
       { label: "Beneficiaries", value: "500K+" },
@@ -49,7 +94,8 @@ const projects = [
     title: "Climate Resilience Data Hub",
     location: "Southeast Asia (6 Countries)",
     year: "2024-Ongoing",
-    description: "Creating a regional climate data repository and decision-support system for disaster risk reduction, integrating satellite imagery, ground sensors, and community-based monitoring.",
+    description:
+      "Creating a regional climate data repository and decision-support system for disaster risk reduction, integrating satellite imagery, ground sensors, and community-based monitoring.",
     metrics: [
       { label: "Data Sources", value: "85+" },
       { label: "Early Warnings", value: "150" },
@@ -62,7 +108,8 @@ const projects = [
     title: "Philippines Coastal Resource Management",
     location: "Philippines (Visayas, Mindanao)",
     year: "2023-2024",
-    description: "Implemented a digital coastal resource mapping and community-based management system for marine protected areas, integrating GIS data with local governance frameworks.",
+    description:
+      "Implemented a digital coastal resource mapping and community-based management system for marine protected areas, integrating GIS data with local governance frameworks.",
     metrics: [
       { label: "MPAs Mapped", value: "120+" },
       { label: "Fisherfolk Engaged", value: "15,000" },
@@ -75,7 +122,8 @@ const projects = [
     title: "Indonesia Palm Oil Traceability Platform",
     location: "Indonesia (Sumatra, Kalimantan)",
     year: "2022-2024",
-    description: "Developed blockchain-enabled supply chain traceability system for sustainable palm oil certification, connecting smallholders to international markets with verified sustainability credentials.",
+    description:
+      "Developed blockchain-enabled supply chain traceability system for sustainable palm oil certification, connecting smallholders to international markets with verified sustainability credentials.",
     metrics: [
       { label: "Smallholders Onboarded", value: "8,500" },
       { label: "Hectares Certified", value: "45K" },
@@ -88,7 +136,8 @@ const projects = [
     title: "Malaysia Urban Resilience Initiative",
     location: "Malaysia (Kuala Lumpur, Penang, Johor)",
     year: "2024-Ongoing",
-    description: "Designing integrated urban flood management and early warning systems using IoT sensors, predictive analytics, and community alert networks for major Malaysian cities.",
+    description:
+      "Designing integrated urban flood management and early warning systems using IoT sensors, predictive analytics, and community alert networks for major Malaysian cities.",
     metrics: [
       { label: "Sensors Deployed", value: "450" },
       { label: "Alert Coverage", value: "3.2M" },
@@ -101,7 +150,8 @@ const projects = [
     title: "ASEAN Youth Skills Digital Platform",
     location: "Philippines, Indonesia, Malaysia, Vietnam",
     year: "2023-2025",
-    description: "Built a regional digital learning platform for youth workforce development, offering certified courses in data analytics, digital marketing, and sustainable agriculture practices.",
+    description:
+      "Built a regional digital learning platform for youth workforce development, offering certified courses in data analytics, digital marketing, and sustainable agriculture practices.",
     metrics: [
       { label: "Youth Enrolled", value: "125K" },
       { label: "Courses Completed", value: "340K" },
@@ -110,10 +160,61 @@ const projects = [
     partners: ["ASEAN Secretariat", "ILO", "Microsoft"],
     category: "Project Consulting",
   },
-];
+] as const;
 
-const Projects = () => {
+const Projects = ({ language }: ProjectsProps) => {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const [heading, setHeading] = useState<SectionHeading>(fallbackHeading.en);
+
+  const apiLang: "en" | "km" = language === "km" ? "km" : "en";
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchProjectsHeader = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/header/${apiLang}`, {
+          method: "GET",
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json",
+            Authorization: API_TOKEN,
+          },
+        });
+
+        const raw = await res.text();
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${raw}`);
+        }
+
+        const data: HeaderResponse = JSON.parse(raw);
+        const topic681 =
+          data?.results?.topics?.find((topic) => topic.id === 681) ?? null;
+
+        if (topic681) {
+          setHeading({
+            title: topic681.title || fallbackHeading[apiLang].title,
+            description: topic681.details || fallbackHeading[apiLang].description,
+          });
+        } else {
+          setHeading(fallbackHeading[apiLang]);
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") return;
+        console.error("Failed to fetch projects header:", error);
+        setHeading(fallbackHeading[apiLang]);
+      }
+    };
+
+    if (API_TOKEN) {
+      fetchProjectsHeader();
+    } else {
+      setHeading(fallbackHeading[apiLang]);
+    }
+
+    return () => controller.abort();
+  }, [apiLang]);
 
   const filteredProjects = projects.filter(
     (p) => activeCategory === "All" || p.category === activeCategory
@@ -124,14 +225,13 @@ const Projects = () => {
       <div className="container px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent leading-tight">
-            Projects & Case Studies
+            {heading.title}
           </h2>
           <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            Delivering measurable impact through data-driven solutions across the Mekong region and Southeast Asia — in partnership with leading development organizations
+            {heading.description}
           </p>
         </div>
 
-        {/* Category Tabs */}
         <div className="flex justify-center mb-10">
           <div className="inline-flex rounded-lg bg-muted p-1 gap-1 flex-wrap justify-center">
             {categories.map((cat) => (
@@ -158,7 +258,6 @@ const Projects = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="p-8 space-y-6">
-                {/* Header */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <span className="px-3 py-1 text-xs font-semibold bg-primary/10 text-primary rounded-full">
@@ -178,12 +277,10 @@ const Projects = () => {
                   </div>
                 </div>
 
-                {/* Description */}
                 <p className="text-muted-foreground leading-relaxed">
                   {project.description}
                 </p>
 
-                {/* Metrics */}
                 <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border/50">
                   {project.metrics.map((metric) => (
                     <div key={metric.label} className="text-center space-y-1">
@@ -196,17 +293,14 @@ const Projects = () => {
                   ))}
                 </div>
 
-                {/* Partners */}
                 <div className="pt-4 border-t border-border/50">
                   <div className="flex items-center gap-2 flex-wrap">
                     <Users className="w-4 h-4 text-secondary" />
                     <span className="text-sm text-muted-foreground">Partners:</span>
                     {project.partners.map((partner, idx) => (
-                      <span
-                        key={partner}
-                        className="text-sm text-foreground/80"
-                      >
-                        {partner}{idx < project.partners.length - 1 ? "," : ""}
+                      <span key={partner} className="text-sm text-foreground/80">
+                        {partner}
+                        {idx < project.partners.length - 1 ? "," : ""}
                       </span>
                     ))}
                   </div>
@@ -216,7 +310,6 @@ const Projects = () => {
           ))}
         </div>
 
-        {/* Summary Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
           {[
             { value: "50+", label: "Projects Delivered" },
